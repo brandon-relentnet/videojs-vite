@@ -1,0 +1,40 @@
+@import 'variables.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: var(--base);
+    height: 100%;
+    transition: background-color .3s ease;
+    font-family: var(--fontFamily);
+}
+
+/* Style the control bar background */
+.video-js .vjs-control-bar {
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Darken control bar */
+}
+
+/* Style individual controls */
+.video-js .vjs-play-control,
+.video-js .vjs-volume-panel,
+.video-js .vjs-fullscreen-control {
+    color: var(--text);
+    /* Set icon colors to white */
+}
+
+/* Change the button color on hover */
+.video-js .vjs-control:hover {
+    color: #f0b429;
+    /* Accent color on hover */
+}
+
+/* Optional: Center the play button and enlarge */
+.video-js .vjs-big-play-button {
+    font-size: 3em;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    color: #333;
+}

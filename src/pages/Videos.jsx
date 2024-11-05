@@ -1,6 +1,6 @@
 // src/pages/Videos.jsx
 import React from 'react';
-import VideoPlayer from '../components/video-player/VideoPlayer';
+import VideoPlayer from '../components/VideoPlayer';
 
 function Videos() {
     const handlePlayerReady = (player) => {

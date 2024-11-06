@@ -11,6 +11,7 @@ const VideoPlayer = ({ src, type, onReady }) => {
         const videoElement = videoRef.current;
 
         if (videoElement && !playerRef.current) {
+            // Initialize the player
             playerRef.current = videojs(
                 videoElement,
                 {
@@ -37,10 +38,11 @@ const VideoPlayer = ({ src, type, onReady }) => {
                 }
             );
         } else if (playerRef.current) {
-            // Update the player source when src or type changes
+            // Update the player source if src or type changes
             playerRef.current.src({ src, type });
         }
 
+        // Cleanup function
         return () => {
             if (playerRef.current) {
                 playerRef.current.dispose();
@@ -48,7 +50,7 @@ const VideoPlayer = ({ src, type, onReady }) => {
                 console.log('Player disposed');
             }
         };
-    }, [src, type, onReady]);
+    }, [src, type]); // Removed 'onReady' from dependencies
 
     return (
         <div data-vjs-player>

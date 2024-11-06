@@ -1,0 +1,29 @@
+{
+  "videos": [
+    {
+      "id": "1",
+      "src": "/dollartree.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "id": "2",
+      "src": "/dollartree.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "id": "a132a0be-283e-4326-b7b5-3d55587c0965",
+      "src": "/dollartree.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "id": "afd8de83-4424-44ed-a330-3896b799ee38",
+      "src": "/dollartree.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "id": "e1557bf1-b238-4429-ab7b-ce52a0785051",
+      "src": "https://streamer.nationcam.com/memfs/5f2133f0-1917-449b-a410-8876c8b3b703.m3u8",
+      "type": "application/x-mpegURL"
+    }
+  ]
+}

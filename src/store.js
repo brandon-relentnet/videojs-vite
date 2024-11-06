@@ -1,9 +1,10 @@
 // src/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import themeReducer from './features/theme/themeSlice';
-import accentReducer from './features/accent/accentSlice'
-import fontFamilyReducer from './features/font-family/fontFamilySlice'
+import themeReducer from './store/themeSlice';
+import accentReducer from './store/accentSlice';
+import fontFamilyReducer from './store/fontFamilySlice';
 import { loadState, saveState } from './localStorage';
+import videosReducer from './store/videosSlice';
 
 const preloadedState = loadState();
 
@@ -12,6 +13,7 @@ export const store = configureStore({
         theme: themeReducer,
         accent: accentReducer,
         fontFamily: fontFamilyReducer,
+        videos: videosReducer,
     },
     preloadedState, // Load initial state from local storage
 });

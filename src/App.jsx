@@ -9,6 +9,7 @@ import Accent from './features/accent/Accent';
 import FontFamily from './features/font-family/FontFamily';
 import NavBar from './components/NavBar';
 import Videos from './pages/Videos';
+import View from './pages/View';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/Videos" element={<Videos />} />
+        <Route path="/videos" element={<Videos />} />
+        <Route path="/view" element={<View />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>

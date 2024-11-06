@@ -9,6 +9,7 @@ function NavBar() {
                 { to: "/", label: "Home" },
                 { to: "/about", label: "About" },
                 { to: "/videos", label: "Videos" },
+                { to: "/view", label: "View" },
                 { to: "/settings", label: "Settings" },
             ].map((link) => {
                 const isActive = location.pathname === link.to;

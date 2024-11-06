@@ -53,8 +53,10 @@ const VideoPlayer = ({ src, type, onReady }) => {
     }, [src, type]); // Removed 'onReady' from dependencies
 
     return (
-        <div data-vjs-player>
-            <video ref={videoRef} className="video-js vjs-big-play-centered" />
+        <div className="video-container w-full max-w-lg overflow-hidden rounded">
+            <div data-vjs-player>
+                <video ref={videoRef} className="video-js" />
+            </div>
         </div>
     );
 };

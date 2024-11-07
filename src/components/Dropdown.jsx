@@ -1,34 +1,51 @@
-// src/components/Dropdown.js
+// src/components/Dropdown.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
-function Dropdown({ options, onSelect, label, selectedValue }) {
+function Dropdown({
+    options,
+    onSelect,
+    label,
+    selectedValue = '',
+    onBlur = null,
+}) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const handleSelect = (value) => {
         onSelect(value);
         setIsOpen(false);
+        if (onBlur) {
+            onBlur();
+        }
     };
 
     // Close dropdown if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
+                if (isOpen) {
+                    setIsOpen(false);
+                    // Only call onBlur if the dropdown is being closed without selecting an option
+                    if (onBlur) {
+                        onBlur();
+                    }
+                }
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [isOpen, onBlur]);
 
     return (
         <div className="w-full mx-auto mb-4 mt-2 relative" ref={dropdownRef}>
             {/* Dropdown Button with Hover and Rotating Icon */}
             <button
+                type="button" // Prevents default form submission
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full px-4 py-2 text-left bg-surface1 text-text shadow rounded flex justify-between items-center hover:bg-surface2"
             >
-                <span>{label}</span>
+                <span>{selectedValue ? selectedValue : label}</span>
                 {/* Rotating arrow icon */}
                 <svg
                     className={`w-4 h-4 text-text ml-2 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'
@@ -37,7 +54,11 @@ function Dropdown({ options, onSelect, label, selectedValue }) {
                     viewBox="0 0 20 20"
                     fill="currentColor"
                 >
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06 0L10 10.92l3.71-3.71a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clipRule="evenodd" />
+                    <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06 0L10 10.92l3.71-3.71a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z"
+                        clipRule="evenodd"
+                    />
                 </svg>
             </button>
 
@@ -50,10 +71,11 @@ function Dropdown({ options, onSelect, label, selectedValue }) {
                 {options.map((option) => (
                     <button
                         key={option.value}
+                        type="button" // Prevents default form submission
                         onClick={() => handleSelect(option.value)}
                         className={`block w-full text-left px-4 py-2 cursor-pointer ${option.value === selectedValue
-                            ? 'bg-accent text-surface0 font-semibold'
-                            : 'text-subtext0 hover:bg-overlay0 hover:text-text'
+                                ? 'bg-accent text-surface0 font-semibold'
+                                : 'text-subtext0 hover:bg-overlay0 hover:text-text'
                             }`}
                     >
                         {option.label}
@@ -63,5 +85,18 @@ function Dropdown({ options, onSelect, label, selectedValue }) {
         </div>
     );
 }
+
+Dropdown.propTypes = {
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            label: PropTypes.string.isRequired,
+            value: PropTypes.string.isRequired,
+        })
+    ).isRequired,
+    onSelect: PropTypes.func.isRequired,
+    label: PropTypes.string.isRequired,
+    selectedValue: PropTypes.string,
+    onBlur: PropTypes.func,
+};
 
 export default Dropdown;

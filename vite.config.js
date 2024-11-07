@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 
+// vite.config.js
 export default defineConfig({
   plugins: [react()],
   build: {
-    sourcemap: false, // Disable source maps
+    sourcemap: true,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      sourcemap: false,
+    },
   },
 });

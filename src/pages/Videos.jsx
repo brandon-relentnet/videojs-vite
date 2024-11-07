@@ -1,10 +1,13 @@
 // src/pages/Videos.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import axios from '../api/axiosInstance'; // Updated import if using Axios instance
 import Dropdown from '../components/Dropdown';
 import VideoPlayer from '../components/VideoPlayer';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+
+// If not using Axios instance, uncomment the following line and comment out the Axios instance import
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 function Videos() {
     const [videos, setVideos] = useState([]);
@@ -32,7 +35,10 @@ function Videos() {
     const fetchCategories = async () => {
         setIsLoadingCategories(true);
         try {
-            const response = await axios.get('http://localhost:5000/api/categories');
+            // If using Axios instance, simply use the relative path
+            const response = await axios.get('/categories');
+            // If not using Axios instance, use the following line instead:
+            // const response = await axios.get(`${API_BASE_URL}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -113,7 +119,10 @@ function Videos() {
             };
 
             try {
-                const response = await axios.post('http://localhost:5000/api/videos', newVideo);
+                // If using Axios instance, use relative path
+                const response = await axios.post('/videos', newVideo);
+                // If not using Axios instance, use the following line instead:
+                // const response = await axios.post(`${API_BASE_URL}/videos`, newVideo);
                 setVideos([...videos, response.data]);
                 resetForm();
                 setSuccessMessage('Video added successfully.');
@@ -138,9 +147,12 @@ function Videos() {
 
         setIsAddingCategory(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/categories', {
+            // If using Axios instance, use relative path
+            const response = await axios.post('/categories', {
                 name: newCategoryName.trim(),
             });
+            // If not using Axios instance, use the following line instead:
+            // const response = await axios.post(`${API_BASE_URL}/categories`, { name: newCategoryName.trim() });
             // Update categories list with the new category
             setCategories([...categories, response.data]);
             // Select the newly added category
@@ -180,7 +192,7 @@ function Videos() {
             <div className="container">
                 <form onSubmit={formik.handleSubmit}>
                     <div className='container mb-8'>
-                        <h2 className='text-2xl text-red text-subtext1 font-semibold m-4 text-left'>Required</h2>
+                        <h2 className='text-2xl text-red text-red font-semibold m-4 text-left'>Required</h2>
                         <div className="p-10 rounded shadow-lg bg-surface0">
                             {/* Title Field */}
                             <div className="mb-4">
@@ -447,7 +459,6 @@ function Videos() {
             </div>
         </div>
     );
-
 }
 
 export default Videos;

@@ -1,11 +1,8 @@
 // src/pages/View.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axiosInstance'; // Import the Axios instance
 import Dropdown from '../components/Dropdown';
 import VideoItem from '../components/VideoItem'; // Import the new VideoItem component
-
-// Define the API base URL
-const API_BASE_URL = 'http://localhost:5000/api'; // Update if using environment variables
 
 function View() {
     // State variables
@@ -21,7 +18,7 @@ function View() {
         const fetchCategories = async () => {
             setIsLoadingCategories(true);
             try {
-                const response = await axios.get(`${API_BASE_URL}/categories`);
+                const response = await axios.get('/categories'); // Relative path
                 // Transform categories to fit Dropdown component format
                 const categoryOptions = [
                     { label: 'All Categories', value: '' },
@@ -37,18 +34,18 @@ function View() {
         };
 
         fetchCategories();
-    }, [API_BASE_URL]);
+    }, []); // Removed API_BASE_URL from dependencies as it doesn't change
 
     // Fetch videos whenever selectedCategory changes
     useEffect(() => {
         const fetchVideos = async () => {
             setIsLoadingVideos(true);
             try {
-                let url = `${API_BASE_URL}/videos`;
+                let url = '/videos'; // Relative path
                 if (selectedCategory) {
                     url += `?category=${encodeURIComponent(selectedCategory)}`;
                 }
-                const response = await axios.get(url);
+                const response = await axios.get(url); // Use relative URL
                 setVideos(response.data.videos);
             } catch (error) {
                 console.error('Error fetching videos:', error);
@@ -59,7 +56,7 @@ function View() {
         };
 
         fetchVideos();
-    }, [selectedCategory, API_BASE_URL]);
+    }, [selectedCategory]); // Removed API_BASE_URL from dependencies
 
     return (
         <div className="container mx-auto px-4 py-12">

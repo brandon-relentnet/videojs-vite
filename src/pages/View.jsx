@@ -1,8 +1,8 @@
 // src/pages/View.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../api/axiosInstance'; // Import the Axios instance
 import Dropdown from '../components/Dropdown';
-import VideoItem from '../components/VideoItem'; // Import the new VideoItem component
+import VideoItem from '../components/VideoItem'; // Import the VideoItem component
 
 function View() {
     // State variables
@@ -34,7 +34,7 @@ function View() {
         };
 
         fetchCategories();
-    }, []); // Removed API_BASE_URL from dependencies as it doesn't change
+    }, []); // Dependencies array left empty as API_BASE_URL is assumed constant
 
     // Fetch videos whenever selectedCategory changes
     useEffect(() => {
@@ -56,14 +56,42 @@ function View() {
         };
 
         fetchVideos();
-    }, [selectedCategory]); // Removed API_BASE_URL from dependencies
+    }, [selectedCategory]); // Re-fetch when selectedCategory changes
+
+    // Function to group videos by category_name
+    const groupVideosByCategory = (videosList) => {
+        return videosList.reduce((groups, video) => {
+            const category = video.category_name || 'Uncategorized';
+            if (!groups[category]) {
+                groups[category] = [];
+            }
+            groups[category].push(video);
+            return groups;
+        }, {});
+    };
+
+    // Determine if we should group videos (i.e., "All Categories" is selected)
+    const shouldGroup = selectedCategory === '';
+
+    // Grouped videos if needed
+    const groupedVideos = shouldGroup ? groupVideosByCategory(videos) : { [selectedCategory || 'Uncategorized']: videos };
+
+    // Debugging: Log groupedVideos to verify structure
+    useEffect(() => {
+        console.log('Grouped Videos:', groupedVideos);
+    }, [groupedVideos]);
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <h1 className="text-3xl mb-8 text-center font-bold text-text">View Videos</h1>
+        <div className="container mx-auto w-10/12 text-text pb-20">
+            <div className="rounded my-16 mx-auto">
+                <h1 className='text-4xl text-left text-accent font-bold mb-2'>View our Streams!</h1>
+                <p className='text-subtext1 text-left'>Sort by stream category to view specific cameras.</p>
+            </div>
 
             {/* Dropdown for category filter */}
-            <div className="w-full max-w-md mx-auto mb-8">
+            
+            <div className="w-full max-w-md mb-8">
+                <label className='text-left text-subtext1 font-semibold block'>Category:</label>
                 {isLoadingCategories ? (
                     <p className="text-center text-text">Loading categories...</p>
                 ) : (
@@ -84,16 +112,25 @@ function View() {
                 </div>
             )}
 
-            {/* Videos Grid */}
+            {/* Videos Sections */}
             <div className="w-full">
                 {isLoadingVideos ? (
                     <p className="text-center text-text">Loading videos...</p>
-                ) : videos.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {videos.map(video => (
-                            <VideoItem key={video.video_id} video={video} />
-                        ))}
-                    </div>
+                ) : Object.keys(groupedVideos).length > 0 ? (
+                    Object.entries(groupedVideos).map(([category, vids]) => (
+                        <section key={category}>
+                            {/* Category Header */}
+                            <h2 className="text-2xl mb-4 font-semibold text-text">
+                                {category}
+                            </h2>
+                            {/* Videos Grid */}
+                            <div className="mb-12 bg-surface0 rounded shadow-lg p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {vids.map(video => (
+                                    <VideoItem key={video.video_id} video={video} />
+                                ))}
+                            </div>
+                        </section>
+                    ))
                 ) : (
                     <p className="text-center text-text">No videos available in this category.</p>
                 )}

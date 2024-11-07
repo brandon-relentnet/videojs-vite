@@ -8,11 +8,11 @@ function VideoItem({ video }) {
     const memoizedOptions = useMemo(() => ({
         autoplay: video.autoplay || false,
         muted: video.muted || false,
-        poster: video.poster || '/default-poster.jpg', // Ensure this path is correct
+        poster: video.poster || '/subtle_ferns_upscayl_2x_ultrasharp.png', // Ensure this path is correct
     }), [video.autoplay, video.muted, video.poster]);
 
     return (
-        <div key={video.video_id} className="bg-surface0 p-4 rounded shadow">
+        <div key={video.video_id} className="bg-surface0 p-4">
             <VideoPlayer
                 src={video.src}
                 type={video.type}
@@ -26,7 +26,7 @@ function VideoItem({ video }) {
             />
             <h3 className="text-xl mt-2 font-semibold text-text">{video.title}</h3>
             {video.description && <p className="text-sm mt-1 text-text">{video.description}</p>}
-            {video.category_name && <p className="text-sm mt-1 text-text"><strong>Category:</strong> {video.category_name}</p>}
+            {video.category_name && <p className="text-sm mt-1 text-subtext0"><strong>Category:</strong> {video.category_name}</p>}
         </div>
     );
 }

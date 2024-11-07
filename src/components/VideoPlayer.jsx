@@ -22,7 +22,7 @@ const VideoPlayer = ({
         responsive: true,
         fluid: true,
         autoplay: false,
-        muted: false,
+        muted: true,
         controlBar: {
             children: ['playToggle', 'volumePanel', 'fullscreenToggle'],
         },

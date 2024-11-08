@@ -30,12 +30,14 @@ function AccentDropdown() {
     };
 
     return (
+        <div className="mb-4">
         <Dropdown
             options={accentOptions}
             onSelect={handleAccentSelect}
             label={accentOptions.find((option) => option.value === currentAccent)?.label || 'Select a Accent'}
             selectedValue={currentAccent}
         />
+        </div>
     );
 }
 

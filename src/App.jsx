@@ -3,6 +3,7 @@ import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
+import { StylesProvider } from './css/Styles';
 
 // Import your components
 import Home from './pages/Home';
@@ -42,7 +43,9 @@ const router = createBrowserRouter(
 function App() {
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <StylesProvider>
+        <RouterProvider router={router} />
+      </StylesProvider>
     </Provider>
   );
 }

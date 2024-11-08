@@ -20,12 +20,14 @@ function ThemeDropdown() {
     };
 
     return (
-        <Dropdown
-            options={themeOptions}
-            onSelect={handleThemeSelect}
-            label={themeOptions.find((option) => option.value === currentTheme)?.label || 'Select a Theme'}
-            selectedValue={currentTheme}
-        />
+        <div className="mb-4">
+            <Dropdown
+                options={themeOptions}
+                onSelect={handleThemeSelect}
+                label={themeOptions.find((option) => option.value === currentTheme)?.label || 'Select a Theme'}
+                selectedValue={currentTheme}
+            />
+        </div>
     );
 }
 

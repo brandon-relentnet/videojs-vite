@@ -31,12 +31,14 @@ function FontFamilyDropdown() {
     };
 
     return (
-        <Dropdown
-            options={fontFamilyOptions}
-            onSelect={handleFontFamilySelect}
-            label={fontFamilyOptions.find((option) => option.value === currentFontFamily)?.label || 'Select a FontFamily'}
-            selectedValue={currentFontFamily}
-        />
+        <div className="mb-4">
+            <Dropdown
+                options={fontFamilyOptions}
+                onSelect={handleFontFamilySelect}
+                label={fontFamilyOptions.find((option) => option.value === currentFontFamily)?.label || 'Select a FontFamily'}
+                selectedValue={currentFontFamily}
+            />
+        </div>
     );
 }
 

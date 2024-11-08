@@ -1,13 +1,15 @@
 // src/pages/Videos.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from '../api/axiosInstance'; // Updated import if using Axios instance
 import Dropdown from '../components/Dropdown';
-import VideoPlayer from '../components/VideoPlayer';
+import VideoPlayer from '../components/video-player/VideoPlayer';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-
-// If not using Axios instance, uncomment the following line and comment out the Axios instance import
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+import { MIME_TYPES, getMimeType } from '../components/video-player/mimeTypes'; // Ensure getMimeType is imported
+import PageHeaders from '../components/PageHeaders';
+import { useStyles } from '../css/Styles';
+import { CSSTransition } from 'react-transition-group';
+import '../css/transitions.css'; // Ensure this path is correct
 
 function Videos() {
     const [videos, setVideos] = useState([]);
@@ -19,6 +21,8 @@ function Videos() {
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const styles = useStyles();
+    const addCategoryRef = useRef(null); // Create a ref for CSSTransition
 
     // Define status options
     const statusOptions = [
@@ -37,8 +41,6 @@ function Videos() {
         try {
             // If using Axios instance, simply use the relative path
             const response = await axios.get('/categories');
-            // If not using Axios instance, use the following line instead:
-            // const response = await axios.get(`${API_BASE_URL}/categories`);
             setCategories(response.data);
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -68,9 +70,13 @@ function Videos() {
             videoSrc: Yup.string()
                 .url('Invalid URL format')
                 .max(500, 'URL must be at most 500 characters')
-                .required('URL is required'),
-            selectedCategory: Yup.string()
-                .required('Category is required'),
+                .required('URL is required')
+                .test('is-supported', 'Unsupported file type', (value) => {
+                    if (!value) return false;
+                    const mimeType = getMimeType(value);
+                    return Object.values(MIME_TYPES).includes(mimeType);
+                }),
+            selectedCategory: Yup.string().required('Category is required'),
             duration: Yup.string()
                 .matches(/^([0-1]?\d|2[0-3]):[0-5]\d:[0-5]\d$/, 'Duration must be in HH:MM:SS format')
                 .nullable(),
@@ -80,29 +86,15 @@ function Videos() {
                 .nullable(),
             // Add more validations as needed
         }),
+        validateOnBlur: false, // Disable automatic blur validation for all fields
+        validateOnChange: false, // Disable automatic change validation for all fields
         onSubmit: async (values, { resetForm }) => {
             setIsSubmitting(true);
             setErrorMessage('');
             setSuccessMessage('');
-            // Infer video type
-            const extension = values.videoSrc.split('.').pop().split('?')[0];
-            let type = '';
-            switch (extension) {
-                case 'mp4':
-                    type = 'video/mp4';
-                    break;
-                case 'webm':
-                    type = 'video/webm';
-                    break;
-                case 'ogg':
-                    type = 'video/ogg';
-                    break;
-                case 'm3u8':
-                    type = 'application/x-mpegURL';
-                    break;
-                default:
-                    type = 'video/mp4';
-            }
+
+            // Use getMimeType to determine the MIME type
+            const type = getMimeType(values.videoSrc);
 
             const newVideo = {
                 title: values.videoTitle,
@@ -121,8 +113,6 @@ function Videos() {
             try {
                 // If using Axios instance, use relative path
                 const response = await axios.post('/videos', newVideo);
-                // If not using Axios instance, use the following line instead:
-                // const response = await axios.post(`${API_BASE_URL}/videos`, newVideo);
                 setVideos([...videos, response.data]);
                 resetForm();
                 setSuccessMessage('Video added successfully.');
@@ -151,8 +141,6 @@ function Videos() {
             const response = await axios.post('/categories', {
                 name: newCategoryName.trim(),
             });
-            // If not using Axios instance, use the following line instead:
-            // const response = await axios.post(`${API_BASE_URL}/categories`, { name: newCategoryName.trim() });
             // Update categories list with the new category
             setCategories([...categories, response.data]);
             // Select the newly added category
@@ -182,18 +170,15 @@ function Videos() {
     }), [formik.values.poster]);
 
     return (
-        <div className="container mx-auto w-10/12 text-text pb-20">
-            <div className="rounded my-16 mx-auto">
-                <h1 className='text-4xl text-left text-accent font-bold mb-2'>Add New Videos!</h1>
-                <p className='text-subtext1 text-left'>Add new videos to the platform by filling in the details below.</p>
-            </div>
+        <div className={`${styles.page}`}>
+            <PageHeaders title="Videos" description="Add, view, and manage videos." />
 
             {/* Form to enter video details */}
             <div className="container">
                 <form onSubmit={formik.handleSubmit}>
                     <div className='container mb-8'>
-                        <h2 className='text-2xl text-red text-red font-semibold m-4 text-left'>Required</h2>
-                        <div className="p-10 rounded shadow-lg bg-surface0">
+                        <h2 className={`${styles.sectionHeader} text-red`}>Required</h2>
+                        <div className={`${styles.sectionBlocks}`}>
                             {/* Title Field */}
                             <div className="mb-4">
                                 <label className="text-left block mb-2 font-bold">
@@ -206,7 +191,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="Enter video title"
-                                    className={`placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full ${formik.touched.videoTitle && formik.errors.videoTitle ? 'border-red-500' : ''}`}
+                                    className={`${styles.input}`}
                                 />
                                 {formik.touched.videoTitle && formik.errors.videoTitle ? (
                                     <div className="text-red text-sm mt-1">{formik.errors.videoTitle}</div>
@@ -225,7 +210,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="https://example.com/video.mp4"
-                                    className={`placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full ${formik.touched.videoSrc && formik.errors.videoSrc ? 'border-red-500' : ''}`}
+                                    className={`${styles.input}`}
                                 />
                                 {formik.touched.videoSrc && formik.errors.videoSrc ? (
                                     <div className="text-red text-sm mt-1">{formik.errors.videoSrc}</div>
@@ -233,64 +218,101 @@ function Videos() {
                             </div>
 
                             {/* Category Selection */}
-                            <div className="mb-4">
+                            <div className='mb-4'>
                                 <label className="text-left block mb-2 font-bold">
                                     Category: <span className="text-accent">*</span>
                                 </label>
-                                {isLoadingCategories ? (
-                                    <p>Loading categories...</p>
-                                ) : (
-                                    <Dropdown
-                                        options={categories.map(cat => ({ label: cat.name, value: cat.name }))}
-                                        onSelect={(value) => formik.setFieldValue('selectedCategory', value)}
-                                        label="Select a Category"
-                                        selectedValue={formik.values.selectedCategory}
-                                        onBlur={() => formik.setFieldTouched('selectedCategory', true)}
-                                    />
-                                )}
+                                <div className='flex justify-between items-center'>
+                                    <div className='flex w-7/12'>
+                                        <div className='w-full'>
+                                            {isLoadingCategories ? (
+                                                <p>Loading categories...</p>
+                                            ) : (
+                                                <Dropdown
+                                                    options={categories.map(cat => ({ label: cat.name, value: cat.name }))}
+                                                    onSelect={(value) => {
+                                                        formik.setFieldValue('selectedCategory', value);
+                                                        formik.setFieldTouched('selectedCategory', true, false);
+                                                    }}
+                                                    label="Select a Category"
+                                                    selectedValue={formik.values.selectedCategory}
+                                                    onClose={() => {
+                                                        if (!formik.values.selectedCategory) {
+                                                            formik.setFieldTouched('selectedCategory', true);
+                                                            formik.validateField('selectedCategory');
+                                                        }
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                        <div>
+                                            {/* Option to add a new category */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAddCategory(!showAddCategory)}
+                                                className={`${styles.button} ml-4`}
+                                                aria-expanded={showAddCategory}
+                                                aria-controls="add-category-section"
+                                            >
+                                                {showAddCategory ? 'Cancel' : '+'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {/* Submit Button */}
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className={`${styles.button} mr-6 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            {isSubmitting ? 'Adding Video...' : 'Add Video'}
+                                        </button>
+                                    </div>
+                                </div>
                                 {formik.touched.selectedCategory && formik.errors.selectedCategory ? (
-                                    <div className="text-red text-sm mt-1">{formik.errors.selectedCategory}</div>
+                                    <div className="-mt-3 mb-3 text-red text-sm">{formik.errors.selectedCategory}</div>
                                 ) : null}
-                                {/* Option to add a new category */}
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddCategory(!showAddCategory)}
-                                    className="px-4 py-2 rounded bg-surface2 text-text hover:scale-105 hover:shadow-md hover:bg-accent hover:text-base transition duration-300 mt-2"
-                                >
-                                    {showAddCategory ? 'Cancel' : 'Add New Category'}
-                                </button>
                             </div>
 
-                            {/* Add New Category Input */}
-                            {showAddCategory && (
-                                <div className="mb-4">
-                                    <label className="text-left block mb-2 font-bold">New Category Name:</label>
-                                    <input
-                                        type="text"
-                                        value={newCategoryName}
-                                        onChange={(e) => setNewCategoryName(e.target.value)}
-                                        placeholder="Enter new category name"
-                                        className={`focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full ${newCategoryName.trim() === '' ? 'border-red-500' : ''}`}
-                                    />
-                                    {newCategoryName.trim() === '' && (
-                                        <div className="text-red text-sm mt-1">Category name cannot be empty.</div>
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={handleAddCategory}
-                                        disabled={isAddingCategory}
-                                        className="mt-2 shadow hover:scale-105 hover:shadow-md bg-surface0 text-subtext0 px-4 py-2 hover:bg-surface1 transition duration-300 rounded"
-                                    >
-                                        {isAddingCategory ? 'Creating...' : 'Create Category'}
-                                    </button>
+                            {/* Add New Category Input with Slide-Down Animation */}
+                            <CSSTransition
+                                in={showAddCategory}
+                                timeout={300}
+                                classNames="slide-down"
+                                unmountOnExit
+                                nodeRef={addCategoryRef} // Pass the ref here
+                            >
+                                <div ref={addCategoryRef} className='mt-4 flex justify-center' id="add-category-section">
+                                    <div className='mt-6 flex flex-col items-center justify-center shadow-xl rounded bg-surface1 w-9/12 p-6'>
+                                        <label className="text-left block mb-2 font-bold">New Category Name:</label>
+                                        <input
+                                            type="text"
+                                            value={newCategoryName}
+                                            onChange={(e) => setNewCategoryName(e.target.value)}
+                                            placeholder="Enter new category name"
+                                            className={`${styles.input} mb-1 ${newCategoryName.trim() === '' ? 'border-red' : ''}`}
+                                        />
+                                        {newCategoryName.trim() === '' && (
+                                            <div className="text-red text-sm mb-1">Category name cannot be empty.</div>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={handleAddCategory}
+                                            disabled={isAddingCategory}
+                                            className={`${styles.button}`}
+                                        >
+                                            {isAddingCategory ? 'Creating...' : 'Create Category'}
+                                        </button>
+                                    </div>
                                 </div>
-                            )}
+                            </CSSTransition>
                         </div>
                     </div>
 
+                    {/* Optional Fields */}
                     <div className='container mb-8'>
-                        <h2 className='text-2xl text-yellow font-semibold m-4 text-left'>Optional</h2>
-                        <div className="p-10 rounded shadow-lg bg-surface0">
+                        <h2 className={`${styles.sectionHeader} text-yellow`}>Optional</h2>
+                        <div className={`${styles.sectionBlocks}`}>
                             {/* Description Field */}
                             <div className="mb-4">
                                 <label className="text-left block mb-2 font-bold">Description:</label>
@@ -300,7 +322,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="Enter video description (optional)"
-                                    className="placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full"
+                                    className={`${styles.input}`}
                                     rows="3"
                                 ></textarea>
                             </div>
@@ -315,7 +337,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="https://example.com/poster.jpg (optional)"
-                                    className="placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full"
+                                    className={`${styles.input}`}
                                 />
                             </div>
 
@@ -329,7 +351,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="00:00:00 (optional)"
-                                    className={`placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full ${formik.touched.duration && formik.errors.duration ? 'border-red-500' : ''}`}
+                                    className={`${styles.input}`}
                                 />
                                 {formik.touched.duration && formik.errors.duration ? (
                                     <div className="text-red-500 text-sm mt-1">{formik.errors.duration}</div>
@@ -346,7 +368,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="e.g., 1080p (optional)"
-                                    className="placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full"
+                                    className={`${styles.input}`}
                                 />
                             </div>
 
@@ -360,7 +382,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="e.g., 500 (optional)"
-                                    className={`placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full ${formik.touched.size && formik.errors.size ? 'border-red-500' : ''}`}
+                                    className={`${styles.input}`}
                                     min="0"
                                 />
                                 {formik.touched.size && formik.errors.size ? (
@@ -381,7 +403,7 @@ function Videos() {
                                     onBlur={() => formik.setFieldTouched('status', true)}
                                 />
                                 {formik.touched.status && formik.errors.status ? (
-                                    <div className="text-red-500 text-sm mt-1">{formik.errors.status}</div>
+                                    <div className="text-red text-sm mt-1">{formik.errors.status}</div>
                                 ) : null}
                             </div>
 
@@ -395,7 +417,7 @@ function Videos() {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     placeholder="Enter user ID (optional)"
-                                    className="placeholder-subtext1 focus:outline-none focus:ring-0 focus:shadow-lg focus:scale-105 border-none rounded bg-surface1 appearance-none hover:shadow-md transition duration-300 shadow p-2 w-full"
+                                    className={`${styles.input}`}
                                     min="1"
                                 />
                             </div>
@@ -404,12 +426,12 @@ function Videos() {
 
                     {/* Display Error or Success Messages */}
                     {errorMessage && (
-                        <div className="mb-4 text-red-500">
+                        <div className="mb-4 text-red">
                             {errorMessage}
                         </div>
                     )}
                     {successMessage && (
-                        <div className="mb-4 text-green-500">
+                        <div className="mb-4 text-green">
                             {successMessage}
                         </div>
                     )}
@@ -418,7 +440,7 @@ function Videos() {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`px-4 py-2 rounded bg-surface2 text-text hover:scale-105 hover:shadow-md hover:bg-accent hover:text-base transition duration-300 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`${styles.button} ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {isSubmitting ? 'Adding Video...' : 'Add Video'}
                     </button>
@@ -459,6 +481,7 @@ function Videos() {
             </div>
         </div>
     );
+
 }
 
 export default Videos;

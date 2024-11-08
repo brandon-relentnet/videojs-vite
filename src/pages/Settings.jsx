@@ -3,8 +3,11 @@ import React from 'react';
 import ThemeDropdown from '../features/theme/ThemeDropdown';
 import AccentDropdown from '../features/accent/AccentDropdown';
 import FontFamilyDropdown from '../features/font-family/FontFamilyDropdown';
+import { useStyles } from '../css/Styles';
 
 function Settings() {
+    const styles = useStyles();
+    
     return (
         <div className="container mx-auto p-4">
             <div className="max-w-3xl mx-auto text-center">

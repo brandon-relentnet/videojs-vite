@@ -5,7 +5,7 @@ function NavBar() {
     const location = useLocation(); // Get current route to apply active styles
 
     return (
-        <nav className="text-text bg-mantle p-4 text-xl space-x-4 font-semibold">
+        <nav className="fixed top-0 w-full z-50 text-text bg-mantle p-4 text-xl space-x-5 font-semibold">
             {[
                 { to: "/", label: "Home" },
                 { to: "/about", label: "About" },
@@ -26,7 +26,7 @@ function NavBar() {
                         {link.label}
                         {/* Custom underline effect */}
                         <span
-                            className={`absolute left-1/2 bottom-0 h-[2px] bg-accent transition-all duration-300 transform -translate-x-1/2 
+                            className={`absolute left-1/2 -bottom-1 h-[2px] bg-accent transition-all duration-300 transform -translate-x-1/2 
                                         ${isActive ? 'w-full' : 'w-0 group-hover:w-4/5 group-active:w-full'}`}
                         />
                     </Link>

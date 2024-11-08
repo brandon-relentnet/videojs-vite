@@ -1,0 +1,27 @@
+/* src/css/transitions.css */
+
+.slide-down-enter {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    /* Prevents content from spilling out during transition */
+}
+
+.slide-down-enter-active {
+    max-height: 500px;
+    /* Adjust based on content */
+    opacity: 1;
+    transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+.slide-down-exit {
+    max-height: 500px;
+    /* Should match enter-active max-height */
+    opacity: 1;
+}
+
+.slide-down-exit-active {
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}

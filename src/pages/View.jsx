@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../api/axiosInstance'; // Import the Axios instance
 import Dropdown from '../components/Dropdown';
-import VideoItem from '../components/VideoItem'; // Import the VideoItem component
+import VideoItem from '../components/video-player/VideoItem'; // Import the VideoItem component
+import PageHeaders from '../components/PageHeaders';
 
 function View() {
     // State variables
@@ -83,13 +84,9 @@ function View() {
 
     return (
         <div className="container mx-auto w-10/12 text-text pb-20">
-            <div className="rounded my-16 mx-auto">
-                <h1 className='text-4xl text-left text-accent font-bold mb-2'>View our Streams!</h1>
-                <p className='text-subtext1 text-left'>Sort by stream category to view specific cameras.</p>
-            </div>
+            <PageHeaders title="View" description="Watch and enjoy our collection of videos." />
 
             {/* Dropdown for category filter */}
-            
             <div className="w-full max-w-md mb-8">
                 <label className='text-left text-subtext1 font-semibold block'>Category:</label>
                 {isLoadingCategories ? (
